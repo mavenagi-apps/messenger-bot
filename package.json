@@ -11,7 +11,10 @@
   "dependencies": {
     "react": "^18",
     "react-dom": "^18",
-    "next": "14.2.5"
+    "mavenagi": "0.0.0-alpha.2",
+    "hono": "4.4.5",
+    "next": "14.2.5",
+    "@vercel/functions": "1.4.0"    
   },
   "devDependencies": {
     "typescript": "^5",
