@@ -9,12 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "react": "^18",
-    "react-dom": "^18",
-    "mavenagi": "1.0.7",
+    "@vercel/functions": "1.4.0",
     "hono": "4.7.4",
+    "mavenagi": "1.0.7",
+    "nanoid": "^5.1.3",
     "next": "14.2.24",
-    "@vercel/functions": "1.4.0"
+    "react": "^18",
+    "react-dom": "^18"
   },
   "devDependencies": {
     "@types/node": "^20",
