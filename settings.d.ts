@@ -2,7 +2,7 @@ declare global {
   interface AppSettings {
     verifyToken: string;
     pageAccessToken: string;
-    conversationTags: string;
+    conversationTags: string
   }
 }
 export {};
