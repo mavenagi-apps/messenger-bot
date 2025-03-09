@@ -1,4 +1,8 @@
 declare global {
-  interface AppSettings {}
+  interface AppSettings {
+    verifyToken: string;
+    pageAccessToken: string;
+    conversationTags: string;
+  }
 }
 export {};
