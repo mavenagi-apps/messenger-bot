@@ -13,7 +13,7 @@
     "react-dom": "^18",
     "mavenagi": "1.0.7",
     "hono": "4.7.4",
-    "next": "15.2.1",
+    "next": "14.2.24",
     "@vercel/functions": "1.4.0"
   },
   "devDependencies": {
