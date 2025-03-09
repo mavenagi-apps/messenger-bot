@@ -173,7 +173,9 @@ export const POST = async (
         // const conversationId = await getConversationIdFromQuestion(client, settings, incoming);
         const ask = await askMaven(client, messageText, conversationId, userId);
 
-        const markdown = ask.messages.filter(m => m.type === "bot").pop()?.responses?.filter(r => r.type === 'text').map(r => r.text).join('\n\n');
+        const botMessages = ask.messages.filter(m => m.type === "bot") as MavenAGI.BotMessage[];
+        const botText = botMessages.pop()?.responses?.filter(r => r.type === 'text') as MavenAGI.BotResponse.Text[];
+        const markdown = botText.map(r => r.text).join('\n\n');
         clearTimeout(timeoutID);
 
         const response = await fetch(
