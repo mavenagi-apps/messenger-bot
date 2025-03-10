@@ -155,11 +155,12 @@ export const POST = async (
       if (messageEvent.message) {
         const senderId = messageEvent.sender.id;
         const messageText = messageEvent.message.text;
-        const userId = (await createOrUpdateUser(client, senderId)).userId.referenceId
 
         console.log(`Received message from ${senderId}: ${messageText}`);
-        const profile =  (await fetch(`https://graph.facebook.com/${senderId}?fields=name,email&access_token=${settings.pageAccessToken}`)).json();
+        const profile =  (await fetch(`https://graph.facebook.com/${senderId}?fields=name,email&access_token=${settings.pageAccessToken}`)).json() as any;
         console.log('profile', profile);
+
+        const userId = (await createOrUpdateUser(client, senderId, profile.name)).userId.referenceId
 
         const setTypingOn = async () =>
             await fetch(
