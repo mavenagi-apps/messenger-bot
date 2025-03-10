@@ -163,7 +163,7 @@ export const POST = async (
         const messageText = messageEvent.message.text;
 
         console.log(`Received message from ${senderId}: ${messageText}`);
-        const profile = await (await fetch(`https://graph.facebook.com/${senderId}?fields=name,email&access_token=${settings.pageAccessToken}`)).json() as any;
+        const profile = await (await fetch(`https://graph.facebook.com/v22.0/${senderId}?fields=name,email&access_token=${settings.pageAccessToken}`)).json() as any;
         console.log('profile', profile);
 
         const userId = (await createOrUpdateUser(client, senderId, profile.name)).userId.referenceId
