@@ -153,7 +153,7 @@ export const POST = async (
         const messageText = messageEvent.message.text;
         const userId = (await createOrUpdateUser(client, senderId)).userId.referenceId
 
-        const profile=  (await fetch(`https://graph.facebook.com/${senderId}?fields=name&access_token=${settings.pageAccessToken}`)).json();
+        const profile=  (await fetch(`https://graph.facebook.com/${senderId}?fields=name,email&access_token=${settings.pageAccessToken}`)).json();
         console.log('profile', profile);
 
         const setTypingOn = async () =>
