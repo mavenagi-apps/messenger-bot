@@ -144,7 +144,7 @@ export const POST = async (
   const client: MavenAGIClient = mavenagiClient(organizationId, agentId);
   const settings = await mavenagiSettings(organizationId, agentId);
 
-  console.log(body);
+  console.log('body', body);
 
   for (const entry of body.entry) {
     for (const messageEvent of entry.messaging) {
@@ -152,6 +152,9 @@ export const POST = async (
         const senderId = messageEvent.sender.id;
         const messageText = messageEvent.message.text;
         const userId = (await createOrUpdateUser(client, senderId)).userId.referenceId
+
+        const profile=  (await fetch(`https://graph.facebook.com/${senderId}?fields=name&access_token=${settings.pageAccessToken}`)).json();
+        console.log('profile', profile);
 
         const setTypingOn = async () =>
             await fetch(
