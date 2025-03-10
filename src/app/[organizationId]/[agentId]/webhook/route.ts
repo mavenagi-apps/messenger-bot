@@ -3,12 +3,15 @@ import {MavenAGIClient, MavenAGI} from "mavenagi";
 import {nanoid} from "nanoid";
 import {mavenagiClient, mavenagiSettings} from "@/utils";
 
-interface IncomingQuestion {
-  question: string;
-  call_sid?: string;
-  caller_id?: string;
-  caller_name?: string;
-}
+
+const getCurrentDate = () => {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}${month}${day}`;
+};
+
 
 async function createOrUpdateUser(
     client: MavenAGIClient,
@@ -53,28 +56,29 @@ async function doesConversationExist(client: MavenAGIClient, conversationId: str
   }
 }
 
-async function getConversationIdFromQuestion(client: MavenAGIClient, settings: AppSettings, incoming: IncomingQuestion) {
-  let conversationId = conversationIdFromMessageId(incoming);
+async function getConversationIdFromQuestion(client: MavenAGIClient, settings: AppSettings, recipientId: string, senderId: string) {
+  let conversationId = conversationIdFromMessageId(recipientId, senderId);
 
-    if (conversationId && await doesConversationExist(client, conversationId)) {
-      console.log(`Found question conversation for ${conversationId}`);
-      return conversationId;
-    }
+  if (conversationId && await doesConversationExist(client, conversationId)) {
+    console.log(`Found question conversation for ${conversationId}`);
+    return conversationId;
+  }
 
   // This is a new conversation; initialize. 
-  return (await initializeConversation(client, settings, incoming)).conversationId.referenceId;
+  return (await initializeConversation(client, settings, recipientId, senderId)).conversationId.referenceId;
 }
 
-function conversationIdFromMessageId(incoming: IncomingQuestion) {
-  return incoming.call_sid ?? nanoid();
+function conversationIdFromMessageId(recipientId: string, senderId: string) {
+  return `fb-${recipientId}-${senderId}-${getCurrentDate()}`;
 }
 
 async function initializeConversation(
     client: MavenAGIClient,
     settings: AppSettings,
-    incoming: IncomingQuestion,
+    recipientId: string,
+    senderId: string,
 ) {
-  const newRefId = conversationIdFromMessageId(incoming);
+  const newRefId = conversationIdFromMessageId(recipientId, senderId);
 
   const conversationInitializationPayload: MavenAGI.ConversationRequest = {
     conversationId: {referenceId: newRefId},
@@ -154,7 +158,7 @@ export const POST = async (
         const userId = (await createOrUpdateUser(client, senderId)).userId.referenceId
 
         console.log(`Received message from ${senderId}: ${messageText}`);
-        const profile =  (await fetch(`https://graph.facebook.com/v3.0/${senderId}?fields=name,email&access_token=${settings.pageAccessToken}`)).json();
+        const profile =  (await fetch(`https://graph.facebook.com/v12.0/${senderId}?fields=name,email&access_token=${settings.pageAccessToken}`)).json();
         console.log('profile', profile);
 
         const setTypingOn = async () =>
@@ -173,8 +177,8 @@ export const POST = async (
             );
         await setTypingOn();
         const timeoutID = setInterval(async () => await setTypingOn(), 3000);
-        const conversationId = await`1-${messageEvent.recipient.id}-${messageEvent.sender.id}`
-        // const conversationId = await getConversationIdFromQuestion(client, settings, incoming);
+
+        const conversationId = await getConversationIdFromQuestion(client, settings, messageEvent.recipient.id, messageEvent.sender.id);
         const ask = await askMaven(client, messageText, conversationId, userId);
 
         const botMessages = ask.messages.filter(m => m.type === "bot") as MavenAGI.BotMessage[];
@@ -202,19 +206,6 @@ export const POST = async (
     }
   }
   return new Response('Message processed', { status: 200 });
-/*
-  const client: MavenAGIClient = mavenagiClient(organizationId, agentId);
-  const settings = await mavenagiSettings(organizationId, agentId);
-  const userId = (await createOrUpdateUser(client, incoming.caller_id, incoming.caller_name)).userId.referenceId
-  console.log(`UserId: ${JSON.stringify(userId)}`);
-
-  const conversationId = await getConversationIdFromQuestion(client, settings, incoming);
-  const response = await askMaven(client, incoming, conversationId, userId);
-  
-  const markdown = response.messages.filter(m => m.type === "bot").pop()?.responses?.filter(r => r.type === 'text').map(r => r.text).join('\n\n');
-  return NextResponse.json({
-    response: markdown,
-  }); */
 }
 
 export const maxDuration = 900;
