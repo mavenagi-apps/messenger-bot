@@ -29,6 +29,12 @@ async function createOrUpdateUser(
         visibility: "VISIBLE"
       }
     }
+
+    data['facebookId'] = {
+      value: id,
+      visibility: "VISIBLE"
+    }
+
     return client.users.createOrUpdate({
       userId: {
         referenceId: `fb-${id}`,
