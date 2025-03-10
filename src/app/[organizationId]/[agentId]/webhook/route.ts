@@ -166,6 +166,7 @@ export const POST = async (
         const profile = await (await fetch(`https://graph.facebook.com/v22.0/${senderId}?fields=name,email&access_token=${settings.pageAccessToken}`)).json() as any;
         console.log('profile', profile);
 
+        // TODO(shalabi): Get the user's email
         const userId = (await createOrUpdateUser(client, senderId, profile.name)).userId.referenceId
 
         const setTypingOn = async () =>
@@ -190,6 +191,8 @@ export const POST = async (
 
         const botMessages = ask.messages.filter(m => m.type === "bot") as MavenAGI.BotMessage[];
         const botText = botMessages.pop()?.responses?.filter(r => r.type === 'text') as MavenAGI.BotResponse.Text[];
+
+        // TODO(shalabi): convert markdown to text
         const markdown = botText.map(r => r.text).join('\n\n');
         clearTimeout(timeoutID);
 
